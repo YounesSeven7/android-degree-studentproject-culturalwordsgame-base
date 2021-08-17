@@ -45,6 +45,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@drawable/rounded_rectangle_right"
+        android:onClick="onButtonOpenAnswerClicked"
         android:src="@drawable/ic_help_white_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -54,6 +55,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@drawable/rounded_rectangle_left"
+        android:onClick="onButtonChangeQuestionClicked"
         android:src="@drawable/ic_change_question_white_24dp"
         android:textColor="@android:color/white"
         android:textSize="20sp"
@@ -65,6 +67,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@drawable/pie_left"
+        android:onClick="showLanguageDialog"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_language_white_24dp" />
