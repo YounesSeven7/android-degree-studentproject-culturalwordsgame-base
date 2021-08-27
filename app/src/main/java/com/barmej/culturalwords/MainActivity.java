@@ -1,22 +1,15 @@
 package com.barmej.culturalwords;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.strictmode.WebViewMethodCalledOnWrongThreadViolation;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.Random;
@@ -45,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imageView = findViewById(R.id.image_view_question);
         SharedPreferences sharedPreferences = getSharedPreferences("app_pref", MODE_PRIVATE);
         String language = sharedPreferences.getString("app_lang", "");
         if (language != "") {
             LoacaleHelper.setLocale(MainActivity.this, language);
         }
         setContentView(R.layout.activity_main);
+        imageView = findViewById(R.id.image_view_question);
     }
 
 
@@ -63,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void onButtonChangeQuestionClicked(View view){
         Random random = new Random();
-        numberIndex = random.nextInt(13);
+        numberIndex = random.nextInt(12);
         Drawable drawable = ContextCompat.getDrawable(this,idDrawable[numberIndex]);
         imageView.setImageDrawable(drawable);
 
@@ -100,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("app_lang", lang);
         editor.apply();
+    }
+    public void onButtonShareQuestion(View view){
+        Intent intent = new Intent(MainActivity.this, ShareActivity.class);
+        intent.putExtra("share_image_drawable", idDrawable[numberIndex]);
+        startActivity(intent);
     }
 
 

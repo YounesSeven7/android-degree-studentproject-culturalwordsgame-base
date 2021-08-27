@@ -1,30 +1,73 @@
 package com.barmej.culturalwords;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.widget.Toast;
+import java.io.ByteArrayOutputStream;
 
 public class ShareActivity extends AppCompatActivity {
     private static final int PERMISSIONS_WRITE_EXTERNAL_STORAGE = 123;
+    private ImageView imageView;
+    private EditText editText;
+
+    private int idDrawable;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
+        imageView = findViewById(R.id.image_view_question);
+        editText = findViewById(R.id.edit_text_share_title);
+        idDrawable = getIntent().getIntExtra("share_image_drawable", -1);
+        Drawable drawable = ContextCompat.getDrawable(this,idDrawable);
+        imageView.setImageDrawable(drawable);
+
+
     }
     /**
      * يجب عليك كتابة الكود الذي يقوم بمشاركة الصورة في هذه الدالة
      */
     private void shareImage() {
         // كود مشاركة الصورة هنا
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),idDrawable);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "Title", null);
+        Uri imageUri =  Uri.parse(path);
+
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("image/jpeg");
+        sharingIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, "");
+        String titel = editText.getText().toString();
+
+        sharingIntent.setAction(Intent.ACTION_SEND);
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, titel);
+        sharingIntent.setType("text/plain");
+
+        startActivity(sharingIntent);
+        startActivity(Intent.createChooser(sharingIntent, "Share image using"));
+
     }
 
     /**
@@ -32,14 +75,11 @@ public class ShareActivity extends AppCompatActivity {
      * <p>
      * وفي حال الحصول على الصلاحية تقوم باستدعاء دالة shareImage لمشاركة الصورة
      **/
-    private void checkPermissionAndShare() {
+    public void checkPermissionAndShare(View view) {
         // insertImage في النسخ من آندرويد 6 إلى آندرويد 9 يجب طلب الصلاحية لكي نتمكن من استخدام الدالة
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)   != PackageManager.PERMISSION_GRANTED) {
             // هنا لا يوجد صلاحية للتطبيق ويجب علينا طلب الصلاحية منه عن طريك الكود التالي
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // بسبب عدم منح المستخدم الصلاحية للتطبيق فمن الأفضل شرح فائدتها له عن طريق عرض رسالة تشرح ذلك
                 // هنا نقوم بإنشاء AlertDialog لعرض رسالة تشرح للمستخدم فائدة منح الصلاحية
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
