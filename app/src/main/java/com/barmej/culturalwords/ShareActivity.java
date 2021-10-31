@@ -58,16 +58,9 @@ public class ShareActivity extends AppCompatActivity {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("image/jpeg");
         sharingIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, "");
         String titel = editText.getText().toString();
-
-        sharingIntent.setAction(Intent.ACTION_SEND);
         sharingIntent.putExtra(Intent.EXTRA_TEXT, titel);
-        sharingIntent.setType("text/plain");
-
-        startActivity(sharingIntent);
         startActivity(Intent.createChooser(sharingIntent, "Share image using"));
-
     }
 
     /**

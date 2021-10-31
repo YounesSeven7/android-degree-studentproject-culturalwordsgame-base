@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -15,9 +16,14 @@ import androidx.core.content.ContextCompat;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    // constants
+    public static final String  APP_PREF_SAVE_LANGUAGE = "APP_PREF_SAVE_LANGUAGE";
+    public static final String  APP_PREF_SAVE_WHEN_CHANGE_LANGUAGE = "APP_PREF_SAVE_WHEN_CHANGE_LANGUAGE";
+    //
     private ImageView imageView;
 
     private int numberIndex = 1;
+    private int isLanguageChange = 0;
     private int []idDrawable = {
             R.drawable.icon_1,
             R.drawable.icon_2,
@@ -38,13 +44,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPreferences = getSharedPreferences("app_pref", MODE_PRIVATE);
-        String language = sharedPreferences.getString("app_lang", "");
-        if (language != "") {
+        int number;
+        SharedPreferences sharedPreferencesSaveLanguage = getSharedPreferences("APP_PREF_SAVE_LANGUAGE", MODE_PRIVATE);
+        String language = sharedPreferencesSaveLanguage.getString("app_lang", "");
+        if (!language.isEmpty()) {
             LoacaleHelper.setLocale(MainActivity.this, language);
         }
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.image_view_question);
+        isLanguageChange = getIntent().getIntExtra("younes", 0);
+        if (isLanguageChange == 0){
+            changeImageDrawable();
+            isLanguageChange++;
+        } else if (isLanguageChange > 0){
+            numberIndex = sharedPreferencesSaveLanguage.getInt("1",0);
+            changeImageDrawable();
+        }
     }
 
 
@@ -56,10 +71,14 @@ public class MainActivity extends AppCompatActivity {
     }
     public void onButtonChangeQuestionClicked(View view){
         Random random = new Random();
-        numberIndex = random.nextInt(12);
+        numberIndex = random.nextInt(idDrawable.length);
+        changeImageDrawable();
+
+    }
+
+    public void changeImageDrawable(){
         Drawable drawable = ContextCompat.getDrawable(this,idDrawable[numberIndex]);
         imageView.setImageDrawable(drawable);
-
     }
 
     public void  showLanguageDialog(View view){
@@ -82,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("younes", 1);
                         startActivity(intent);
 
                     }
@@ -89,9 +109,10 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
     private void saveLang(String lang){
-        SharedPreferences sharedPreferences = getSharedPreferences("app_pref", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        SharedPreferences sharedPreferencesSaveLanguage = getSharedPreferences(APP_PREF_SAVE_LANGUAGE, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferencesSaveLanguage.edit();
         editor.putString("app_lang", lang);
+        editor.putInt("1", numberIndex);
         editor.apply();
     }
     public void onButtonShareQuestion(View view){
@@ -101,5 +122,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("save_number_index", numberIndex);
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        numberIndex = savedInstanceState.getInt("save_number_index");
+        changeImageDrawable();
+    }
 }
